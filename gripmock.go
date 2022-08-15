@@ -22,6 +22,8 @@ func main() {
 	adminBindAddr := flag.String("admin-listen", "", "Adress the admin server will bind to. Default to localhost, set to 0.0.0.0 to use from another machine")
 	stubPath := flag.String("stub", "", "Path where the stub files are (Optional)")
 	imports := flag.String("imports", "/protobuf", "comma separated imports path. default path /protobuf is where gripmock Dockerfile install WKT protos")
+	skipProtoGen := flag.Bool("skip", false, "avoid generate proto file again")
+
 	// for backwards compatibility
 	if os.Args[1] == "gripmock" {
 		os.Args = append(os.Args[:1], os.Args[2:]...)
@@ -60,14 +62,16 @@ func main() {
 	importDirs := strings.Split(*imports, ",")
 
 	// generate pb.go and grpc server based on proto
-	generateProtoc(protocParam{
-		protoPath:   protoPaths,
-		adminPort:   *adminport,
-		grpcAddress: *grpcBindAddr,
-		grpcPort:    *grpcPort,
-		output:      output,
-		imports:     importDirs,
-	})
+	if !*skipProtoGen {
+		generateProtoc(protocParam{
+			protoPath:   protoPaths,
+			adminPort:   *adminport,
+			grpcAddress: *grpcBindAddr,
+			grpcPort:    *grpcPort,
+			output:      output,
+			imports:     importDirs,
+		})
+	}
 
 	// build the server
 	//buildServer(output)
